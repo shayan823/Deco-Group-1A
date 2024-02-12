@@ -1,0 +1,18 @@
+ # 1a.ode
+ # Example of defining an ODE for XPPAUT
+ 
+ # Parameters
+ par a=-0.5, w=6.28
+ 
+ # ODE definition
+ dx/dt = (a - x*x - y*y)*x - w*y
+ dy/dt = (a - x*x - y*y)*y + w*x
+ 
+ # Define z as an auxillary variable
+ aux z = sqrt(x*x + y*y)
+ # Initial conditions
+ init x = 0.5
+ init y = 0.5
+ 
+ # Done
+ done
