@@ -192,7 +192,7 @@ for j=1:length(as)
 
     plot(time_steps,y_val)
 
-    a=num2str(a)
+    a=num2str(a);
 
 
     legend('dx/dt','dy/dt')
@@ -296,7 +296,7 @@ end
 
 
 as=linspace(-3,3,1000);
-w=2*pi;
+w=12*2*pi;
 dt=1/100;
 beta=0;
 eigenvalues_val=[];
@@ -317,7 +317,6 @@ for p=1:length(as)
     eigenvalues=eig(Jacobian_init);
 
     eigenvalues_val=[eigenvalues_val,eigenvalues(1)];
-    eigenvalues_val2=[eigenvalues_val2,eigenvalues(2)];
 
 
 end
@@ -325,9 +324,15 @@ end
 
 figure(6)
 clf
-plot(real(eigenvalues_val),imag(eigenvalues_val))
+plot(as,real(eigenvalues_val))
+xlabel('a')
+ylabel('Real Part of Eigenvalue')
+title('Eigenvalues of System Steady State With Varying a')
 hold on
-plot(real(eigenvalues_val2),imag(eigenvalues_val2))
+zero_axis=[min(real(eigenvalues_val)):max(real(eigenvalues_val))];
+zero=zeros(length(zero_axis));
+plot(zero,zero_axis,'k--')
+text(0.2,2.5,'a=0')
 
    
     
