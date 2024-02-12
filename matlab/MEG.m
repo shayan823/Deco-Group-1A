@@ -116,6 +116,9 @@ function MEG
     end
 
 
+
+    % using euler's method 
+
     function out = dxdt(x,y)
 
         out = (a-x^2-y^2)*x - w*y + beta*noise;
@@ -128,8 +131,19 @@ function MEG
     
     end
 
+    % noisy solutions with changing a
+
+    as=[-2,-1,0,1];
+    
+    figure(4)
+        clf
+
+for j=1:length(as)
+
+    % initial conditions
+
     w=2*pi;
-    a=-1;
+    a=as(j);
     tsteps=614;
     dt=1/100;
     beta=50;
@@ -144,33 +158,118 @@ function MEG
     time_steps=[1];
 
     for i=2:tsteps
+        
+        % 1st time step already considered, move to next
+        % continue from there
 
         time_steps=[time_steps;i];
 
+        % generate randomly generated, normally distributed value
+
         noise = normrnd(0,sqrt(dt));
 
-       
+       % euler method
+
         x = x + dxdt(x,y)*dt;
         y = y + dydt(x,y)*dt;
+
+        % add new value to list of x,y values
 
         x_val=[x_val;x];
         y_val=[y_val;y];
 
     end
+    
+    % plotting
 
     figure(4)
-    clf
 
+    subplot(2,2,j)
+    
     plot(time_steps,x_val)
 
     hold on
 
     plot(time_steps,y_val)
 
+    a=num2str(a)
+
+
     legend('dx/dt','dy/dt')
     xlabel('time steps')
     ylabel('x(t) / y(t)')
-    title('ODE solutions')
+    title('ODE solutions when a = ', a)
+
+end
+
+% normal ODE solutions
+% same as previous but without noise
+
+figure(5)
+    clf
+
+for j=1:length(as)
+
+    % initial conditions
+
+    w=2*pi;
+    a=as(j);
+    tsteps=614;
+    dt=1/100;
+    beta=0;
+    noise=[];
+
+    x=0.5;
+    y=0.5;
+
+    x_val=[x];
+    y_val=[y];
+
+    time_steps=[1];
+
+    for i=2:tsteps
+
+        % 1st time step considered, move to next
+        % continue from there
+
+        time_steps=[time_steps;i];
+
+        % generate randomly generated, normally distributed variable
+
+        noise = normrnd(0,sqrt(dt));
+
+        % euler method
+       
+        x = x + dxdt(x,y)*dt;
+        y = y + dydt(x,y)*dt;
+
+        % add updated value to x,y values
+
+        x_val=[x_val;x];
+        y_val=[y_val;y];
+
+    end
+
+    % plot
+    
+    figure(5)
+
+    subplot(2,2,j)
+    
+    plot(time_steps,x_val)
+
+    hold on
+
+    plot(time_steps,y_val)
+
+    a=num2str(a)
+
+
+    legend('dx/dt','dy/dt')
+    xlabel('time steps')
+    ylabel('x(t) / y(t)')
+    title('ODE solutions when a = ', a)
+end
 
 
 
