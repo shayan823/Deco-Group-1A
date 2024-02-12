@@ -40,7 +40,7 @@ function MEG
 
     function out = functions(t,p)
 
-        % dx/dt and dy/dt
+        %dx/dt and dy/dt
 
     x = p(1);
     y = p(2);
@@ -112,7 +112,7 @@ function MEG
         xlabel('t')
         ylabel('x(t)/y(t)')
 
-    
+
     end
 
 
@@ -128,13 +128,13 @@ function MEG
     function out = dydt(x,y)
 
         out = (a-x^2-y^2)*y + w*x + beta*noise;
-    
+
     end
 
     % noisy solutions with changing a
 
     as=[-2,-1,0,1];
-    
+
     figure(4)
         clf
 
@@ -158,7 +158,7 @@ for j=1:length(as)
     time_steps=[1];
 
     for i=2:tsteps
-        
+
         % 1st time step already considered, move to next
         % continue from there
 
@@ -179,13 +179,13 @@ for j=1:length(as)
         y_val=[y_val;y];
 
     end
-    
+
     % plotting
 
     figure(4)
 
     subplot(2,2,j)
-    
+
     plot(time_steps,x_val)
 
     hold on
@@ -239,7 +239,7 @@ for j=1:length(as)
         noise = normrnd(0,sqrt(dt));
 
         % euler method
-       
+
         x = x + dxdt(x,y)*dt;
         y = y + dydt(x,y)*dt;
 
@@ -251,18 +251,18 @@ for j=1:length(as)
     end
 
     % plot
-    
+
     figure(5)
 
     subplot(2,2,j)
-    
+
     plot(time_steps,x_val)
 
     hold on
 
     plot(time_steps,y_val)
 
-    a=num2str(a)
+    a=num2str(a);
 
 
     legend('dx/dt','dy/dt')
@@ -272,6 +272,62 @@ for j=1:length(as)
 end
 
 
+
+
+
+% bifurcation diagram
+    
+    function out = system_equ(p)
+
+        x = p(1);
+        y = p(2);
+
+        out = [(a-x.^2-y.^2).*x - w*y + beta*noise;
+               (a-x.^2-y.^2).*y + w*x + beta*noise;];
+    end
+
+    
+    
+    function out = Jacob(x,y)
+    
+        out = [a-3*x^2-y^2, -2*x*y-w;
+               -2*x*y+w, a-x^2-3*y^2];
+    end
+
+
+as=linspace(-3,3,1000);
+w=2*pi;
+dt=1/100;
+beta=0;
+eigenvalues_val=[];
+eigenvalues_val2=[];
+
+options = optimoptions('fsolve', 'Display', 'off');
+
+for p=1:length(as)
+
+    a=as(p);
+    noise = normrnd(0,sqrt(dt));
+
+    system_eq_handle = @(p) system_equ(p);
+    ss = fsolve(system_eq_handle, [0.5, 0.5], options);
+
+    Jacobian_init=Jacob(ss(1),ss(2));
+    
+    eigenvalues=eig(Jacobian_init);
+
+    eigenvalues_val=[eigenvalues_val,eigenvalues(1)];
+    eigenvalues_val2=[eigenvalues_val2,eigenvalues(2)];
+
+
+end
+
+
+figure(6)
+clf
+plot(real(eigenvalues_val),imag(eigenvalues_val))
+hold on
+plot(real(eigenvalues_val2),imag(eigenvalues_val2))
 
    
     
