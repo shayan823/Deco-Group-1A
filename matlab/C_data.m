@@ -23,7 +23,7 @@ function C_data
         % requires vectors x and y, as well as ALL parameters
         % takes jth value of each vector & represents differential equation
 
-        out = (a(j)-x(j).^2-y(j).^2).*x(j) - w(j).*y(j) + G*C(:,j).*(x-x(j)) ...
+        out = (a(j)-x(j).^2-y(j).^2).*x(j) - w(j).*y(j) + G*C(:,j).*sum(x-x(j)) ...
                + beta.*noise;
 
     end
@@ -34,7 +34,7 @@ function C_data
         % size
         % takes jth value of each vector % represents differential equation
         
-        out = (a(j)-x(j).^2-y(j).^2).*y(j) + w(j).*x(j) + G*C(:,j).*(y-y(j)) ...
+        out = (a(j)-x(j).^2-y(j).^2).*y(j) + w(j).*x(j) + G*C(:,j).*sum(y-y(j)) ...
                + beta.*noise;
 
     end
@@ -74,11 +74,11 @@ function C_data
     x=0.5*ones(length(C),1);
     y=0.5*ones(length(C),1);
 
-    beta=5*ones(length(C));
+    beta=50*ones(length(C));
     a=0*ones(length(C));
     w=2*pi*ones(length(C));
     G=0.05;
-    tstep=6140;
+    tstep=6000;
     dt=1/100;
     noise = normrnd(0,sqrt(dt),[1,length(C)]);
 
@@ -133,3 +133,4 @@ function C_data
 
 
 end
+
