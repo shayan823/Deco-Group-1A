@@ -138,7 +138,7 @@ hold on
 % Plotting the Upper Envelope on the Subplot (4,1,1)
 [yupper,ylower] = envelope(x_val);
 plot(time_steps, yupper, LineWidth=2);
-legend('Original Signal','Upper Bound')
+legend('Original Signal','Upper Envelope')
 
 %% Range Filtering [lower upper]
 
