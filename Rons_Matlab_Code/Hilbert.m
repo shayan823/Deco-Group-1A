@@ -1,4 +1,4 @@
-function [x_values,y_values] = hilbert()
+function [x_values,y_values] = Hilbert()
 
 C78 = C_data;
 num_steps = 6000;
