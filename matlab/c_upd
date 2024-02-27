@@ -1,0 +1,176 @@
+function C_updated;
+
+C90 = C_data;
+num_steps = 6000;
+dt = 1/100;
+P.a = 0;
+P.omega = 24*pi*ones(1,length(C90));
+P.beta = 0.5;
+P.G = 0.5;
+
+% Initialize the arrays to store the x, y values for all neurons
+x_values = zeros(num_steps, length(C90));
+y_values = zeros(num_steps, length(C90));
+
+% Initialize x and y vectors with zeros
+x = ones(1,length(C90))*0.5;
+y = ones(1,length(C90))*0.5;
+
+for step = 1:num_steps
+    % Generate a single random noise term for each neuron
+    P.noise = randn(1,length(C90))*sqrt(dt);
+
+    % Calculate the dxdt and dydt using the equations provided
+    dxdt = (P.a - x.^2 - y.^2).*x - P.omega.*y + (P.G*(diag(C90.*(x - x'))))';
+    dydt = (P.a - x.^2 - y.^2).*y - P.omega.*x + (P.G*(diag(C90.*(y - y'))))';
+
+    % Update the x and y values
+    x = x+dxdt.*dt+P.beta.*P.noise;
+    y = y+dydt.*dt+P.beta.*P.noise;
+
+    % Store the values
+    x_values(step,:) = x;
+    y_values(step,:) = y;
+
+end
+
+tstep = 1:6000;
+
+figure(1);
+clf
+subplot(2,1,1)
+plot(tstep,x_values(:,25))
+hold on
+subplot(2,1,2)
+filtered_x_val = bandpass(x_values(:,25), [10 14], 1000);
+plot(tstep,filtered_x_val)
+hold on
+[yupper,ylower] = envelope(filtered_x_val);
+plot(tstep,yupper)
+
+% random = randi([1 3],length(C90));
+hilbert_envelope_array = [];
+
+% for n=1:length(P.omega)
+%     if random(n) == 1
+%         P.omega(n) = P.omega(n)*2;
+%     elseif random(n) == 2
+%         P.omega(n) = P.omega(n)*12;
+%     else 
+%         P.omega(n) = P.omega(n)*24;
+%     end
+% end
+
+
+% for k=1:1:length(C90)
+% 
+%     if random(k) ==1
+% 
+%         filtered_x_val = bandpass(x_values(:,k), [2 6], 1000);
+% 
+%         %% Range Filtering [lower upper]
+%         [yupper,ylower] = envelope(filtered_x_val);
+% 
+%         hilbert_envelope = hilbert(yupper);
+% 
+%         hilbert_envelope_array(:,k) = hilbert_envelope;
+% 
+%     elseif random(k) == 2
+% 
+%         filtered_x_val = bandpass(x_values(:,k), [10 14], 1000);
+% 
+%         %% Range Filtering [lower upper]
+%         [yupper,ylower] = envelope(filtered_x_val);
+% 
+%         hilbert_envelope = hilbert(yupper);
+% 
+%         hilbert_envelope_array(:,k) = hilbert_envelope;
+% 
+%     else
+% 
+%         filtered_x_val = bandpass(x_values(:,k), [20 26], 1000);
+% 
+%         %% Range Filtering [lower upper]
+%         [yupper,ylower] = envelope(filtered_x_val);
+% 
+%         hilbert_envelope = hilbert(yupper);
+% 
+%         hilbert_envelope_array(:,k) = hilbert_envelope;
+%     end
+% 
+% 
+% end
+low_pass_filtered_envelope=[];
+for k=1:1:length(C90)
+    
+    filtered_x_val=bandpass(x_values(:,k),[10 14],1000);
+
+    [yupper,ylower]=envelope(filtered_x_val);
+    hilbert_envelope=hilbert(yupper);
+
+    hilbert_envelope_array(:,k)=hilbert_envelope;
+
+
+    low_passed_envelope=lowpass(yupper,0.2);
+    low_pass_filtered_envelope(:,k)=low_passed_envelope;
+
+end
+
+figure(5)
+clf
+correlation_matrix=corrcoef(low_pass_filtered_envelope);
+imagesc(correlation_matrix)
+colorbar;
+
+instantaneous_phases=angle(hilbert_envelope_array);
+% R=mean(exp(1i*instantaneous_phases),2);
+
+exp_phase=exp(1i*instantaneous_phases);
+phase_sum=abs(sum(exp_phase,2));
+R=phase_sum/length(C90);
+
+
+figure(2)
+clf
+plot(tstep,R)
+
+figure(3)
+clf
+plot(tstep,sqrt(R))
+
+V=[];
+CCD=[];
+[m,n] = size(instantaneous_phases);
+
+for time=1:1:m
+
+    for i=1:1:n
+
+        diffs = instantaneous_phases(time,i)-instantaneous_phases(time,:);
+        abs_diff=cos(sqrt(sum(diffs.^2)));
+        V(time,i)=abs_diff;
+
+    end
+end
+
+for t1=1:length(V)
+    for t2=1:length(V)
+        
+        CCD(t1,t2)=(V(t1,:)*V(t2,:)')/(sqrt(sum((V(t1,:).^2)))*sqrt(sum((V(t2,:).^2))'));
+    end
+end
+
+ figure(4)
+ clf
+
+ imagesc(CCD);
+ colorbar;
+ caxis([0 1])
+
+end
+
+%% C78
+function C90 = C_data;
+data = load("C90.mat");
+C90 = data.C;
+end
