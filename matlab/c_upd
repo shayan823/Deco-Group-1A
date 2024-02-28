@@ -1,28 +1,28 @@
 function C_updated;
 
-C90 = C_data;
+C = C_data;
 num_steps = 6000;
 dt = 1/100;
 P.a = 0;
-P.omega = 24*pi*ones(1,length(C90));
+P.omega = 24*pi*ones(1,length(C));
 P.beta = 0.5;
 P.G = 0.5;
 
 % Initialize the arrays to store the x, y values for all neurons
-x_values = zeros(num_steps, length(C90));
-y_values = zeros(num_steps, length(C90));
+x_values = zeros(num_steps, length(C));
+y_values = zeros(num_steps, length(C));
 
 % Initialize x and y vectors with zeros
-x = ones(1,length(C90))*0.5;
-y = ones(1,length(C90))*0.5;
+x = ones(1,length(C))*0.5;
+y = ones(1,length(C))*0.5;
 
 for step = 1:num_steps
     % Generate a single random noise term for each neuron
-    P.noise = randn(1,length(C90))*sqrt(dt);
+    P.noise = randn(1,length(C))*sqrt(dt);
 
     % Calculate the dxdt and dydt using the equations provided
-    dxdt = (P.a - x.^2 - y.^2).*x - P.omega.*y + (P.G*(diag(C90.*(x - x'))))';
-    dydt = (P.a - x.^2 - y.^2).*y - P.omega.*x + (P.G*(diag(C90.*(y - y'))))';
+    dxdt = (P.a - x.^2 - y.^2).*x - P.omega.*y + (P.G*(diag(C.*(x - x'))))';
+    dydt = (P.a - x.^2 - y.^2).*y - P.omega.*x + (P.G*(diag(C.*(y - y'))))';
 
     % Update the x and y values
     x = x+dxdt.*dt+P.beta.*P.noise;
@@ -101,46 +101,45 @@ hilbert_envelope_array = [];
 % 
 % end
 low_pass_filtered_envelope=[];
-for k=1:1:length(C90)
+for k=1:1:length(C)
     
-    filtered_x_val=bandpass(x_values(:,k),[10 14],1000);
+    filtered_x_val=bandpass(x_values(:,k),[8 12],1000);
 
     [yupper,ylower]=envelope(filtered_x_val);
     hilbert_envelope=hilbert(yupper);
 
-    hilbert_envelope_array(:,k)=hilbert_envelope;
+    hilbert_envelope_array(:,k)= hilbert_envelope;
 
 
-    low_passed_envelope=lowpass(yupper,0.2);
+    low_passed_envelope=lowpass(hilbert_envelope,0.2);
     low_pass_filtered_envelope(:,k)=low_passed_envelope;
 
 end
-
-figure(5)
-clf
-correlation_matrix=corrcoef(low_pass_filtered_envelope);
-imagesc(correlation_matrix)
-colorbar;
 
 instantaneous_phases=angle(hilbert_envelope_array);
 % R=mean(exp(1i*instantaneous_phases),2);
 
 exp_phase=exp(1i*instantaneous_phases);
 phase_sum=abs(sum(exp_phase,2));
-R=phase_sum/length(C90);
+R=phase_sum/length(C);
 
 
 figure(2)
 clf
 plot(tstep,R)
 
-figure(3)
-clf
-plot(tstep,sqrt(R))
-
 V=[];
 CCD=[];
 [m,n] = size(instantaneous_phases);
+
+figure(3)
+
+clf
+
+correlation_matrix=corrcoef(abs(low_pass_filtered_envelope));
+correlation_matrix=correlation_matrix-(diag(correlation_matrix).*eye(length(correlation_matrix)));
+imagesc(correlation_matrix)
+colorbar;
 
 for time=1:1:m
 
@@ -170,7 +169,7 @@ end
 end
 
 %% C78
-function C90 = C_data;
-data = load("C90.mat");
-C90 = data.C;
+function C = C_data;
+data = load("C78.mat");
+C = data.C;
 end
