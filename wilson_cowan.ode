@@ -1,0 +1,16 @@
+# wilson_cowan.ode
+
+# Parameters
+par tau_e = 3, tau_i = 8, w_ee = 10, w_ei = 12, w_ii = 10, w_ie = 10, p_e = 0, p_i = -1 
+
+# ODE definition
+f_a(x) = 1/(1+exp(-x))
+de/dt = (-e + f_a(w_ee*e - w_ei*i + p_e))/tau_e
+di/dt = (-i + f_a(w_ie*e - w_ii*i + p_i))/tau_i
+
+# Initial conditions
+init e = 0.1
+init i = 0.1
+
+# Done
+done
