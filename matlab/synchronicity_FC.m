@@ -8,15 +8,16 @@ end
 
 C = C_data;
 C = C*0.2/max(max(C));
-tmax=3.2;
-dt = 1/1000;
+tmax=10;
+dt = 0.002;
 time_steps=[0:dt:tmax];
 num_steps=length(time_steps);
+
 
 P.a = 0;
 P.omega = 24*pi;
 P.beta = 0.5;
-P.G = 0.2;
+P.G = 0.5;
 
 
 
@@ -52,7 +53,7 @@ for step = 1:num_steps
 
 end
 
-freqs = [2 6;10 14; 26 30];
+freqs = [2 6;6 10;10 14;14 18;18 24;24 28; 26 30];
 
 figure(3)
 clf
@@ -67,14 +68,15 @@ for freq=1:length(freqs)
     
     frequency=num2str(freqs(freq,:));
 
-    filtered_x_val=bandpass(x_values',freqs(freq,:),1000);
+    filtered_x_val=bandpass(x_values',freqs(freq,:),1500);
 
     [yupper,ylower]=envelope(filtered_x_val);
 
 
-    low_passed_envelope=lowpass(yupper,0.2);
+    low_passed_envelope=lowpass(yupper,0.2,1500);
+  
 
-    hilbert_envelope = hilbert(low_passed_envelope);
+    hilbert_envelope = hilbert(yupper);
     angle_envelope = angle(hilbert_envelope);
 
     % instantaneous_phases=angle(low_passed_envelope)
@@ -86,7 +88,7 @@ for freq=1:length(freqs)
     
     figure(2)
 
-    subplot(1,3,freq)
+    subplot(2,4,freq)
     
     plot(time_steps,R)
     xlabel('Time')
@@ -97,11 +99,12 @@ for freq=1:length(freqs)
     
     hold on
 
-    subplot(1,3,freq)
+    subplot(2,4,freq)
 
     correlation_matrix=corrcoef(low_passed_envelope);
     correlation_matrix=correlation_matrix-(diag(correlation_matrix).*eye(length(correlation_matrix)));
-    imagesc(abs(correlation_matrix));
+    imagesc(correlation_matrix);
+    colormap('turbo');
     colorbar;
 
     xlabel('Region')
@@ -115,12 +118,13 @@ for freq=1:length(freqs)
     for time=1:1:m
     
         for i=1:1:n
-    
+
             diffs = angle_envelope(time,i)-angle_envelope(time,:);
             abs_diff=cos(sqrt(sum(diffs.^2)));
             V(time,i)=abs_diff;
-    
+
         end
+
     end
 
     for t1=1:m
@@ -133,9 +137,10 @@ for freq=1:length(freqs)
     
      figure(4)
      
-     subplot(1,3,freq)
+     subplot(2,4,freq)
     
      imagesc(CCD);
+     colormap('turbo');
      colorbar;
      caxis([0 1])
     
