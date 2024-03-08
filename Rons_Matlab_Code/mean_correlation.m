@@ -1,4 +1,4 @@
-function SteveBrain2
+function mean_correlation
 
 C78 = C_data;
 dt = 0.001;
