@@ -29,7 +29,7 @@ Our analysis reveals:
 - Challenges in replicability and parameter sensitivity of Deco's model
 - Superior alignment of the Wilson-Cowan model with empirical MEG data
 - Critical insights into noise parameterization and model assumptions
-For a detailed presentation of our findings, please refer to our [full report](final_pdf.pdf)..
+For a detailed presentation of our findings, please refer to our [full report](final_report.pdf).
 
 ## References
 
